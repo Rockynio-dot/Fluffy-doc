@@ -13,9 +13,11 @@ env/
 .pytest_cache/
 *.tmp
 
-# Vygenerované protokoly (výstup aplikace)
-data/vystup/*
-!data/vystup/.gitkeep
+# Runtime data aplikace (šablony, čítače, vygenerované protokoly).
+# Nejsou to zdrojové soubory – aplikace do nich sama zapisuje, tak ať
+# nekolidují s gitem. Ukázkové šablony se vytvoří skriptem
+# `python examples/vytvor_ukazkove_sablony.py`.
+/data/
 
 # OS
 .DS_Store
