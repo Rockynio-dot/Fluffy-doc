@@ -161,6 +161,33 @@ def test_odt_rozsekany_placeholder_s_diakritikou(tmp_path):
     assert "Samsung" in xml and "{{" not in xml
 
 
+def test_odt_vnorene_spany(tmp_path):
+    # přesně tak, jak placeholder rozseká LibreOffice (vnořené <text:span>)
+    content = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"'
+        ' xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" office:version="1.2">'
+        "<office:body><office:text>"
+        '<text:p>Značka: <text:span text:style-name="S">{{</text:span>'
+        '<text:span text:style-name="S"><text:span text:style-name="T3">Značka_telefonu'
+        '</text:span></text:span><text:span text:style-name="S">}}</text:span></text:p>'
+        "</office:text></office:body></office:document-content>"
+    )
+    sablona = tmp_path / "s.odt"
+    with zipfile.ZipFile(sablona, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("mimetype", "application/vnd.oasis.opendocument.text", zipfile.ZIP_STORED)
+        z.writestr("content.xml", content)
+
+    assert odt_engine.scan(str(sablona)) == ["Značka_telefonu"]
+    vystup = tmp_path / "out.odt"
+    odt_engine.fill(str(sablona), {"Značka_telefonu": "Samsung"}, str(vystup))
+    xml = _text_odt(str(vystup))
+    assert "Samsung" in xml and "{{" not in xml
+    # výsledek musí zůstat validní XML (spany se nerozbily)
+    import xml.dom.minidom as m
+    m.parseString(xml)
+
+
 def test_odt_nfd_scan_a_fill(tmp_path):
     import unicodedata
     content = unicodedata.normalize("NFD",

@@ -19,11 +19,11 @@ from .placeholder import PLACEHOLDER_RE, najdi_klice, normalizuj
 
 _CASTI = ("content.xml", "styles.xml")
 
-# hranice mezi dvěma sousedními <text:span> (LibreOffice tak občas rozseká
-# slovo kvůli kontrole pravopisu / formátování)
-_SPAN_HRANICE = re.compile(r"</text:span>\s*<text:span\b[^>]*>")
-# placeholder, který může uvnitř obsahovat XML značky
-_PLACEHOLDER_S_TAGY = re.compile(r"\{\{.*?\}\}", re.DOTALL)
+# jakýkoli <text:span …> nebo </text:span> – LibreOffice do nich placeholder
+# často zabalí (i vnořeně) kvůli formátování / kontrole pravopisu
+_SPAN_TAG = re.compile(r"</?text:span\b[^>]*>")
+# placeholder, který může uvnitř obsahovat XML značky (ale ne konec odstavce)
+_PLACEHOLDER_S_TAGY = re.compile(r"\{\{(?:(?!</text:p>).)*?\}\}", re.DOTALL)
 
 
 def scan(cesta: str) -> list[str]:
@@ -64,12 +64,13 @@ def fill(cesta_sablony: str, hodnoty: dict[str, str], cesta_vystupu: str) -> str
 def _slouc_rozdelene(xml: str) -> str:
     """Spojí placeholder, který LibreOffice rozdělil do více ``<text:span>``.
 
-    Uvnitř každého úseku ``{{ … }}`` odstraní hranice mezi sousedními spany
-    (zavření + otevření), takže se placeholder stane souvislým textem.
-    Odstraňují se jen vyvážené dvojice, XML tak zůstává validní.
+    Uvnitř každého úseku ``{{ … }}`` odstraní všechny span-značky (i vnořené),
+    takže se placeholder stane souvislým textem ``{{klic}}``. Vnější span
+    (otevřený před ``{{`` a zavřený za ``}}``) zůstane, XML tak zůstává validní.
+    Úsek se nikdy nerozšíří přes konec odstavce (``</text:p>``).
     """
     def oprav(shoda: re.Match) -> str:
-        return _SPAN_HRANICE.sub("", shoda.group(0))
+        return _SPAN_TAG.sub("", shoda.group(0))
 
     return _PLACEHOLDER_S_TAGY.sub(oprav, xml)
 
