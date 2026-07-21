@@ -2,13 +2,14 @@
   "nazev": "Předávací protokol – Mobilní telefon",
   "popis": "Předání služebního mobilního telefonu.",
   "dokument": "dokument.docx",
+  "citac": 0,
   "pole": [
     {
       "klic": "cislo_protokolu",
       "popisek": "Číslo protokolu",
-      "typ": "text",
-      "povinne": true,
-      "vychozi": "",
+      "typ": "auto",
+      "povinne": false,
+      "vychozi": "TEL-{rok}-{poradi:04d}",
       "moznosti": []
     },
     {

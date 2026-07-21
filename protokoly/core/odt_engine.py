@@ -19,6 +19,12 @@ from .placeholder import PLACEHOLDER_RE, najdi_klice
 
 _CASTI = ("content.xml", "styles.xml")
 
+# hranice mezi dvěma sousedními <text:span> (LibreOffice tak občas rozseká
+# slovo kvůli kontrole pravopisu / formátování)
+_SPAN_HRANICE = re.compile(r"</text:span>\s*<text:span\b[^>]*>")
+# placeholder, který může uvnitř obsahovat XML značky
+_PLACEHOLDER_S_TAGY = re.compile(r"\{\{.*?\}\}", re.DOTALL)
+
 
 def scan(cesta: str) -> list[str]:
     """Vrátí seznam klíčů placeholderů použitých v dokumentu."""
@@ -40,6 +46,7 @@ def fill(cesta_sablony: str, hodnoty: dict[str, str], cesta_vystupu: str) -> str
     for cast in _CASTI:
         if cast in polozky:
             xml = polozky[cast].decode("utf-8")
+            xml = _slouc_rozdelene(xml)
             polozky[cast] = _nahrad(xml, hodnoty).encode("utf-8")
 
     with zipfile.ZipFile(cesta_vystupu, "w", zipfile.ZIP_DEFLATED) as z:
@@ -51,6 +58,19 @@ def fill(cesta_sablony: str, hodnoty: dict[str, str], cesta_vystupu: str) -> str
                 continue
             z.writestr(info.filename, polozky[info.filename])
     return cesta_vystupu
+
+
+def _slouc_rozdelene(xml: str) -> str:
+    """Spojí placeholder, který LibreOffice rozdělil do více ``<text:span>``.
+
+    Uvnitř každého úseku ``{{ … }}`` odstraní hranice mezi sousedními spany
+    (zavření + otevření), takže se placeholder stane souvislým textem.
+    Odstraňují se jen vyvážené dvojice, XML tak zůstává validní.
+    """
+    def oprav(shoda: re.Match) -> str:
+        return _SPAN_HRANICE.sub("", shoda.group(0))
+
+    return _PLACEHOLDER_S_TAGY.sub(oprav, xml)
 
 
 def _nahrad(xml: str, hodnoty: dict[str, str]) -> str:

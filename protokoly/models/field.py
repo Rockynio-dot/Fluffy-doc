@@ -16,6 +16,7 @@ class FieldType(str, Enum):
     DATE = "date"            # datum (formát DD.MM.RRRR)
     CHOICE = "choice"        # výběr z možností
     CHECKBOX = "checkbox"    # ano/ne
+    AUTO = "auto"            # automatické číslo protokolu (čítač)
 
     @property
     def popisek(self) -> str:
@@ -26,6 +27,7 @@ class FieldType(str, Enum):
             FieldType.DATE: "Datum",
             FieldType.CHOICE: "Výběr z možností",
             FieldType.CHECKBOX: "Ano/Ne",
+            FieldType.AUTO: "Automatické číslo",
         }[self]
 
 
@@ -50,6 +52,8 @@ class Field:
     # ---- validace vyplněné hodnoty ------------------------------------
     def validuj(self, hodnota: str) -> str | None:
         """Vrátí chybovou hlášku, nebo ``None`` když je hodnota v pořádku."""
+        if self.typ == FieldType.AUTO:
+            return None  # generuje se automaticky, nevaliduje se
         hodnota = (hodnota or "").strip()
         if self.povinne and not hodnota and self.typ != FieldType.CHECKBOX:
             return f"Pole „{self.popisek}“ je povinné."
@@ -75,6 +79,21 @@ class Field:
         if self.typ == FieldType.CHECKBOX:
             return "☒ Ano" if _je_pravda(hodnota) else "☐ Ne"
         return hodnota
+
+    def format_auto(self, poradi: int, kdy: date | None = None) -> str:
+        """Sestaví hodnotu automatického čísla podle vzoru ve ``vychozi``.
+
+        Ve vzoru lze použít ``{poradi}`` (pořadové číslo), ``{rok}``,
+        ``{mesic}`` a ``{den}`` – včetně formátování, např.
+        ``PST-{rok}-{poradi:04d}`` → ``PST-2026-0007``.
+        Když vzor chybí, použije se čtyřmístné pořadové číslo.
+        """
+        kdy = kdy or date.today()
+        vzor = self.vychozi or "{poradi:04d}"
+        try:
+            return vzor.format(poradi=poradi, rok=kdy.year, mesic=kdy.month, den=kdy.day)
+        except (KeyError, ValueError, IndexError):
+            return str(poradi)
 
     # ---- serializace --------------------------------------------------
     def to_dict(self) -> dict[str, Any]:

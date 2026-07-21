@@ -66,6 +66,13 @@ class FillDialog(QDialog):
         layout.addLayout(radek)
 
     def _widget_pro(self, pole) -> QWidget:
+        if pole.typ == FieldType.AUTO:
+            w = QLineEdit()
+            w.setReadOnly(True)
+            w.setText(pole.format_auto(self.sablona.citac + 1))
+            w.setStyleSheet("color: gray; font-style: italic;")
+            w.setToolTip("Vyplní se automaticky při generování.")
+            return w
         if pole.typ == FieldType.MULTILINE:
             w = QPlainTextEdit()
             w.setPlainText(pole.vychozi)
@@ -93,6 +100,8 @@ class FillDialog(QDialog):
         return w
 
     def _hodnota(self, pole, w) -> str:
+        if pole.typ == FieldType.AUTO:
+            return pole.format_auto(self.sablona.citac + 1)
         if pole.typ == FieldType.MULTILINE:
             return w.toPlainText()
         if pole.typ == FieldType.CHOICE:
@@ -105,7 +114,14 @@ class FillDialog(QDialog):
 
     def _generuj(self) -> None:
         hodnoty = {p.klic: self._hodnota(p, self.widgety[p.klic]) for p in self.sablona.pole}
-        oznaceni = hodnoty.get("seriove_cislo") or hodnoty.get("cislo_protokolu") or ""
+        # označení souboru: auto-číslo > sériové číslo > číslo protokolu
+        auto = next((p.klic for p in self.sablona.pole if p.typ == FieldType.AUTO), None)
+        oznaceni = (
+            (hodnoty.get(auto) if auto else "")
+            or hodnoty.get("seriove_cislo")
+            or hodnoty.get("cislo_protokolu")
+            or ""
+        )
         cesta = self.storage.cesta_pro_vystup(self.sablona, oznaceni)
         try:
             Generator.generuj(self.sablona, hodnoty, cesta)
@@ -115,6 +131,14 @@ class FillDialog(QDialog):
         except Exception as e:  # noqa: BLE001
             QMessageBox.critical(self, "Chyba", str(e))
             return
+
+        # po úspěšném vygenerování posuň čítač automatického čísla
+        if self.sablona.ma_auto_cislo():
+            self.sablona.citac += 1
+            try:
+                self.storage.uloz_sablonu(self.sablona)
+            except Exception:  # noqa: BLE001
+                pass
 
         self.vygenerovano = cesta
         odpoved = QMessageBox.question(

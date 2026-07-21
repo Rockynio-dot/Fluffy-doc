@@ -2,13 +2,14 @@
   "nazev": "Předávací protokol – PC / Notebook",
   "popis": "Předání počítače nebo notebooku zaměstnanci.",
   "dokument": "dokument.odt",
+  "citac": 1,
   "pole": [
     {
       "klic": "cislo_protokolu",
       "popisek": "Číslo protokolu",
-      "typ": "text",
-      "povinne": true,
-      "vychozi": "",
+      "typ": "auto",
+      "povinne": false,
+      "vychozi": "PC-{rok}-{poradi:04d}",
       "moznosti": []
     },
     {

@@ -31,6 +31,16 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
+Na Linuxu Qt (PySide6) potřebuje pár systémových knihoven. Když GUI spadne na
+`libEGL.so.1: cannot open shared object file`, doinstaluj je:
+
+```bash
+# Fedora:
+sudo dnf install libglvnd-egl mesa-libGL libxkbcommon dbus-libs
+# Debian/Ubuntu:
+sudo apt install libegl1 libgl1 libxkbcommon0 libdbus-1-3 libglib2.0-0
+```
+
 > Poznámka: pro ODT není potřeba žádná knihovna navíc — pracuje se přímo
 > s ODF (ZIP + XML). `.docx` využívá `python-docx`, GUI běží na `PySide6`.
 
@@ -59,10 +69,13 @@ Po instalaci přes `pip install .` je k dispozici i příkaz `fluffy-doc`.
 5. **Uložit**.
 
 ### Zápis polí v dokumentu
-- Placeholder má tvar `{{klic}}`; klíč smí obsahovat písmena, číslice a `_`.
+- Placeholder má tvar `{{klic}}`; klíč smí obsahovat písmena (**včetně české
+  diakritiky**, např. `{{Značka_telefonu}}`), číslice a `_`.
 - Stejný klíč můžeš použít vícekrát — vyplní se všude stejně.
-- Doporučení pro `.odt`: nech `{{ }}` jako souvislý text (neaplikuj uvnitř
-  různé formátování), aby se placeholder spolehlivě našel.
+- **Tip:** v editoru šablony i v pravém panelu hlavního okna stačí kliknout na
+  `{{klic}}` a rovnou se zkopíruje do schránky — pak jen `Ctrl+V` do dokumentu.
+- ODT z LibreOffice, kde je placeholder rozdělený (např. kvůli kontrole
+  pravopisu), appka zvládne — části `{{ }}` si sama spojí.
 
 ### Typy polí
 | Typ | Chování |
@@ -73,6 +86,21 @@ Po instalaci přes `pip install .` je k dispozici i příkaz `fluffy-doc`.
 | Datum | výběr z kalendáře, formát `DD.MM.RRRR` |
 | Výběr z možností | rozbalovací seznam (pole *Možnosti*, oddělené `;`) |
 | Ano/Ne | zaškrtávátko → do dokumentu se vloží `☒ Ano` / `☐ Ne` |
+| Automatické číslo | číslo protokolu z čítače, viz níže |
+
+### Automatické číslování protokolů
+Číslo protokolu se umí generovat samo a **čítač i vzor se pamatují u každé
+šablony zvlášť** (v jejím `sablona.json`).
+
+1. Přidej pole typu **Automatické číslo** (např. klíč `cislo_protokolu`).
+2. Do sloupce **Výchozí / Vzor čísla** napiš vzor, např.
+   `PST-{rok}-{poradi:04d}` → `PST-2026-0007`.
+   Použitelné značky: `{poradi}`, `{rok}`, `{mesic}`, `{den}`
+   (lze i s formátem, třeba `{poradi:04d}` = čtyřmístné číslo).
+3. Ve formuláři se další číslo předvyplní a je jen ke čtení; po vygenerování
+   se **čítač automaticky posune o 1**.
+4. Aktuální stav čítače (a tím i další číslo) můžeš kdykoli ručně nastavit
+   v editoru šablony u položky *Čítač protokolu*.
 
 ## Uložení dat
 

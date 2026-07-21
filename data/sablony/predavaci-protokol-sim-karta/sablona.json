@@ -2,13 +2,14 @@
   "nazev": "Předávací protokol – SIM karta",
   "popis": "Předání služební SIM karty.",
   "dokument": "dokument.docx",
+  "citac": 0,
   "pole": [
     {
       "klic": "cislo_protokolu",
       "popisek": "Číslo protokolu",
-      "typ": "text",
-      "povinne": true,
-      "vychozi": "",
+      "typ": "auto",
+      "povinne": false,
+      "vychozi": "SIM-{rok}-{poradi:04d}",
       "moznosti": []
     },
     {

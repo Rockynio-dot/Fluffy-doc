@@ -20,7 +20,12 @@ class Template:
     dokument: str                       # název souboru dokumentu (relativně ke složce šablony)
     popis: str = ""
     pole: list[Field] = field(default_factory=list)
+    citac: int = 0                      # kolik protokolů už bylo vygenerováno (pro auto-číslo)
     slozka: str | None = None           # absolutní cesta ke složce šablony (nastaví storage)
+
+    def ma_auto_cislo(self) -> bool:
+        from .field import FieldType
+        return any(p.typ == FieldType.AUTO for p in self.pole)
 
     # ---- práce s poli -------------------------------------------------
     def klice(self) -> list[str]:
@@ -62,6 +67,7 @@ class Template:
             "nazev": self.nazev,
             "popis": self.popis,
             "dokument": self.dokument,
+            "citac": self.citac,
             "pole": [p.to_dict() for p in self.pole],
         }
 
@@ -71,6 +77,7 @@ class Template:
             nazev=data["nazev"],
             dokument=data["dokument"],
             popis=data.get("popis", ""),
+            citac=int(data.get("citac", 0)),
             pole=[Field.from_dict(p) for p in data.get("pole", [])],
             slozka=slozka,
         )

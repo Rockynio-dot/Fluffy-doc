@@ -5,12 +5,13 @@ import os
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
-    QHBoxLayout, QHeaderView, QLabel, QLineEdit, QMessageBox, QPushButton,
-    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
+    QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFileDialog,
+    QFormLayout, QHBoxLayout, QHeaderView, QLabel, QLineEdit, QMessageBox,
+    QPushButton, QSpinBox, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
 from ..core.generator import Generator, GeneratorError
+from ..core.placeholder import obal
 from ..models import Field, FieldType, Template
 from ..models.storage import Storage
 
@@ -53,7 +54,9 @@ class TemplateEditor(QDialog):
 
         napoveda = QLabel(
             "V dokumentu označ místa k vyplnění zápisem <b>{{klic}}</b>, "
-            "např. <b>{{seriove_cislo}}</b>. Tlačítkem níže je načteš do tabulky polí."
+            "např. <b>{{seriove_cislo}}</b>. Tlačítkem níže je načteš do tabulky polí. "
+            "Klíč lze i s diakritikou (<b>{{Značka_telefonu}}</b>). "
+            "Kliknutím na buňku ve sloupci <b>Klíč</b> zkopíruješ <b>{{klic}}</b> do schránky."
         )
         napoveda.setWordWrap(True)
         napoveda.setStyleSheet("color: #555; padding: 4px 0;")
@@ -74,11 +77,37 @@ class TemplateEditor(QDialog):
 
         self.tabulka = QTableWidget(0, 6)
         self.tabulka.setHorizontalHeaderLabels(
-            ["Klíč ({{...}})", "Popisek", "Typ", "Povinné", "Možnosti (; )", "Výchozí"]
+            ["Klíč ({{...}})", "Popisek", "Typ", "Povinné", "Možnosti (; )", "Výchozí / Vzor čísla"]
         )
         self.tabulka.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.tabulka.verticalHeader().setVisible(False)
+        self.tabulka.cellClicked.connect(self._kopiruj_klic)
         layout.addWidget(self.tabulka, 1)
+
+        # --- automatické číslování protokolů (per šablona) ---
+        cislo = QHBoxLayout()
+        cislo.addWidget(QLabel("Čítač protokolu – poslední použité číslo:"))
+        self.spin_citac = QSpinBox()
+        self.spin_citac.setMaximum(10_000_000)
+        self.spin_citac.setToolTip("Další vygenerovaný protokol dostane číslo o 1 vyšší.")
+        cislo.addWidget(self.spin_citac)
+        cislo.addStretch(1)
+        layout.addLayout(cislo)
+
+        napoveda_auto = QLabel(
+            "Automatické číslo: přidej pole typu <b>Automatické číslo</b> a do sloupce "
+            "<b>Vzor čísla</b> napiš vzor, např. <code>PST-{rok}-{poradi:04d}</code> → "
+            "<code>PST-2026-0007</code>. Placeholdery: <code>{poradi}</code>, "
+            "<code>{rok}</code>, <code>{mesic}</code>, <code>{den}</code>. "
+            "Čítač i vzor se pamatují u každé šablony zvlášť."
+        )
+        napoveda_auto.setWordWrap(True)
+        napoveda_auto.setStyleSheet("color: #555; padding: 2px 0;")
+        layout.addWidget(napoveda_auto)
+
+        self.status = QLabel("")
+        self.status.setStyleSheet("color: #2a7; padding: 2px 0;")
+        layout.addWidget(self.status)
 
         btns = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         btns.accepted.connect(self._uloz)
@@ -97,13 +126,16 @@ class TemplateEditor(QDialog):
         self.ed_popis.setText(s.popis)
         self.lbl_dokument.setText(s.dokument)
         self.lbl_dokument.setStyleSheet("color: black;")
+        self.spin_citac.setValue(s.citac)
         for f in s.pole:
             self._pridej_radek(f)
 
     def _pridej_radek(self, f: Field) -> None:
         r = self.tabulka.rowCount()
         self.tabulka.insertRow(r)
-        self.tabulka.setItem(r, 0, QTableWidgetItem(f.klic))
+        polozka_klic = QTableWidgetItem(f.klic)
+        polozka_klic.setToolTip("Klikni pro zkopírování {{" + f.klic + "}} do schránky")
+        self.tabulka.setItem(r, 0, polozka_klic)
         self.tabulka.setItem(r, 1, QTableWidgetItem(f.popisek))
 
         combo = QComboBox()
@@ -128,6 +160,16 @@ class TemplateEditor(QDialog):
     def _smaz_radek(self) -> None:
         for idx in sorted({i.row() for i in self.tabulka.selectedIndexes()}, reverse=True):
             self.tabulka.removeRow(idx)
+
+    def _kopiruj_klic(self, radek: int, sloupec: int) -> None:
+        if sloupec != 0:
+            return
+        polozka = self.tabulka.item(radek, 0)
+        klic = polozka.text().strip() if polozka else ""
+        if not klic:
+            return
+        QApplication.clipboard().setText(obal(klic))
+        self.status.setText(f"Zkopírováno do schránky: {obal(klic)}  – vlož do dokumentu (Ctrl+V).")
 
     # ---- akce ---------------------------------------------------------
     def _vyber_dokument(self) -> None:
@@ -200,6 +242,7 @@ class TemplateEditor(QDialog):
             nazev=nazev,
             dokument=self.sablona.dokument if self.sablona else "dokument.docx",
             popis=self.ed_popis.text().strip(),
+            citac=self.spin_citac.value(),
             pole=self._posbirej_pole(),
         )
         try:

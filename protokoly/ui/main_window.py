@@ -7,10 +7,11 @@ import sys
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
-    QAbstractItemView, QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
-    QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget,
+    QAbstractItemView, QApplication, QHBoxLayout, QLabel, QListWidget,
+    QListWidgetItem, QMainWindow, QMessageBox, QPushButton, QVBoxLayout, QWidget,
 )
 
+from ..core.placeholder import obal
 from ..models.storage import Storage, slugify
 from .fill_dialog import FillDialog
 from .template_editor import TemplateEditor
@@ -45,8 +46,14 @@ class MainWindow(QMainWindow):
         self.detail = QLabel("Vyber šablonu ze seznamu.")
         self.detail.setWordWrap(True)
         self.detail.setAlignment(Qt.AlignTop)
-        self.detail.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.detail.setTextInteractionFlags(Qt.TextBrowserInteraction)
+        self.detail.setOpenExternalLinks(False)
+        self.detail.linkActivated.connect(self._kopiruj_placeholder)
         pravy.addWidget(self.detail, 1)
+
+        self.status = QLabel("")
+        self.status.setStyleSheet("color: #2a7;")
+        pravy.addWidget(self.status)
 
         btn_vyplnit = QPushButton("📝 Vyplnit a vygenerovat")
         btn_vyplnit.clicked.connect(self._vyplnit)
@@ -85,7 +92,8 @@ class MainWindow(QMainWindow):
         s = self.storage.nacti_sablonu(slug)
         radky = "".join(
             f"<li><b>{p.popisek}</b> "
-            f"<code>{{{{{p.klic}}}}}</code> – {p.typ.popisek}"
+            f"<a href='copy:{p.klic}' style='text-decoration:none'>"
+            f"<code>{{{{{p.klic}}}}}</code></a> – {p.typ.popisek}"
             f"{' (povinné)' if p.povinne else ''}</li>"
             for p in s.pole
         )
@@ -93,8 +101,16 @@ class MainWindow(QMainWindow):
             f"<h3>{s.nazev}</h3>"
             f"<p style='color:gray'>{s.popis}</p>"
             f"<p>Dokument: <code>{s.dokument}</code> · Formát: {s.format.upper()}</p>"
-            f"<p><b>Pole ({len(s.pole)}):</b></p><ul>{radky}</ul>"
+            f"<p><b>Pole ({len(s.pole)}):</b> "
+            f"<span style='color:gray'>(klikni na {{{{klíč}}}} pro zkopírování)</span></p>"
+            f"<ul>{radky}</ul>"
         )
+
+    def _kopiruj_placeholder(self, odkaz: str) -> None:
+        if odkaz.startswith("copy:"):
+            klic = odkaz[len("copy:"):]
+            QApplication.clipboard().setText(obal(klic))
+            self.status.setText(f"Zkopírováno: {obal(klic)}")
 
     # ---- akce ---------------------------------------------------------
     def _vyplnit(self) -> None:

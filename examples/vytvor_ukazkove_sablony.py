@@ -29,18 +29,21 @@ from protokoly.core.placeholder import obal
 # --------------------------------------------------------------------------
 # definice ukázkových šablon: (název, popis, [Field], odt?)
 # --------------------------------------------------------------------------
-SPOLECNA_HLAVICKA = [
-    Field("cislo_protokolu", "Číslo protokolu", FieldType.TEXT, povinne=True),
-    Field("datum_predani", "Datum předání", FieldType.DATE, povinne=True),
-    Field("predavajici", "Předávající", FieldType.TEXT, povinne=True),
-    Field("prebirajici", "Přebírající", FieldType.TEXT, povinne=True),
-    Field("stredisko", "Středisko / oddělení", FieldType.TEXT),
-]
+def hlavicka(vzor_cisla: str) -> list[Field]:
+    """Společná hlavička protokolu; ``cislo_protokolu`` je automatické číslo."""
+    return [
+        Field("cislo_protokolu", "Číslo protokolu", FieldType.AUTO, vychozi=vzor_cisla),
+        Field("datum_predani", "Datum předání", FieldType.DATE, povinne=True),
+        Field("predavajici", "Předávající", FieldType.TEXT, povinne=True),
+        Field("prebirajici", "Přebírající", FieldType.TEXT, povinne=True),
+        Field("stredisko", "Středisko / oddělení", FieldType.TEXT),
+    ]
+
 
 SABLONY = {
     "Předávací protokol – PC / Notebook": {
         "popis": "Předání počítače nebo notebooku zaměstnanci.",
-        "pole": SPOLECNA_HLAVICKA + [
+        "pole": hlavicka("PC-{rok}-{poradi:04d}") + [
             Field("typ_zarizeni", "Typ zařízení", FieldType.CHOICE, moznosti=["PC", "Notebook"]),
             Field("vyrobce", "Výrobce", FieldType.TEXT),
             Field("model", "Model", FieldType.TEXT),
@@ -55,7 +58,7 @@ SABLONY = {
     },
     "Předávací protokol – Mobilní telefon": {
         "popis": "Předání služebního mobilního telefonu.",
-        "pole": SPOLECNA_HLAVICKA + [
+        "pole": hlavicka("TEL-{rok}-{poradi:04d}") + [
             Field("vyrobce", "Výrobce", FieldType.TEXT),
             Field("model", "Model", FieldType.TEXT),
             Field("imei", "IMEI", FieldType.TEXT, povinne=True),
@@ -68,7 +71,7 @@ SABLONY = {
     },
     "Předávací protokol – SIM karta": {
         "popis": "Předání služební SIM karty.",
-        "pole": SPOLECNA_HLAVICKA + [
+        "pole": hlavicka("SIM-{rok}-{poradi:04d}") + [
             Field("operator", "Operátor", FieldType.CHOICE,
                   moznosti=["T-Mobile", "O2", "Vodafone"]),
             Field("telefonni_cislo", "Telefonní číslo", FieldType.TEXT, povinne=True),

@@ -18,6 +18,11 @@ def test_najdi_klice_poradi_a_bez_duplicit():
     assert najdi_klice(text) == ["seriove_cislo", "model"]
 
 
+def test_najdi_klice_s_diakritikou():
+    text = "Značka: {{Značka_telefonu}}, jméno {{Jméno_Přebírajícího}}, {{Vybavení}}"
+    assert najdi_klice(text) == ["Značka_telefonu", "Jméno_Přebírajícího", "Vybavení"]
+
+
 # ---- pomocníci --------------------------------------------------------
 def _docx_se_sablonou(cesta):
     doc = Document()
@@ -122,3 +127,55 @@ def test_checkbox_formatovani():
     f = Field("souhlas", "Souhlas", FieldType.CHECKBOX)
     assert f.naformatuj("ano") == "☒ Ano"
     assert f.naformatuj("") == "☐ Ne"
+
+
+# ---- ODT rozsekaný placeholder + diakritika --------------------------
+def test_odt_rozsekany_placeholder_s_diakritikou(tmp_path):
+    # LibreOffice rozdělil {{Značka_telefonu}} do dvou spanů
+    content = (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"'
+        ' xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" office:version="1.2">'
+        "<office:body><office:text>"
+        "<text:p><text:span>Značka: {{Zna</text:span>"
+        "<text:span>čka_telefonu}}</text:span></text:p>"
+        "</office:text></office:body></office:document-content>"
+    )
+    sablona = tmp_path / "s.odt"
+    with zipfile.ZipFile(sablona, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("mimetype", "application/vnd.oasis.opendocument.text", zipfile.ZIP_STORED)
+        z.writestr("content.xml", content)
+
+    assert odt_engine.scan(str(sablona)) == ["Značka_telefonu"]
+
+    vystup = tmp_path / "out.odt"
+    odt_engine.fill(str(sablona), {"Značka_telefonu": "Samsung"}, str(vystup))
+    xml = _text_odt(str(vystup))
+    assert "Samsung" in xml and "{{" not in xml
+
+
+# ---- automatické číslo -----------------------------------------------
+def test_auto_cislo_format_a_citac():
+    from datetime import date
+    f = Field("cislo_protokolu", "Číslo", FieldType.AUTO, vychozi="PST-{rok}-{poradi:04d}")
+    assert f.format_auto(7, date(2026, 7, 21)) == "PST-2026-0007"
+    assert f.validuj("") is None                 # auto se nevaliduje
+
+    prazdny = Field("c", "C", FieldType.AUTO)     # bez vzoru -> 4místné číslo
+    assert prazdny.format_auto(3) == "0003"
+
+
+def test_template_pamatuje_citac_a_vzor(tmp_path):
+    from protokoly.models.storage import Storage
+    st = Storage(datovy_adresar=str(tmp_path))
+    doc = tmp_path / "d.docx"
+    Document().save(str(doc))
+    t = Template(nazev="X", dokument="d.docx", citac=5, pole=[
+        Field("cislo_protokolu", "Číslo", FieldType.AUTO, vychozi="A-{poradi:03d}"),
+    ])
+    st.uloz_sablonu(t, zdrojovy_dokument=str(doc))
+
+    nactena = st.nacti_sablonu("x")
+    assert nactena.citac == 5
+    assert nactena.pole[0].vychozi == "A-{poradi:03d}"
+    assert nactena.ma_auto_cislo()
