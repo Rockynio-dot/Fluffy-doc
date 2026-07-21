@@ -23,6 +23,13 @@ def test_najdi_klice_s_diakritikou():
     assert najdi_klice(text) == ["Značka_telefonu", "Jméno_Přebírajícího", "Vybavení"]
 
 
+def test_najdi_klice_nfd_rozlozena_diakritika():
+    import unicodedata
+    # jak to ukládá LibreOffice na některých systémech (rozložené znaky)
+    text = unicodedata.normalize("NFD", "{{Značka_telefonu}} {{Vybavení}} {{Model}}")
+    assert najdi_klice(text) == ["Značka_telefonu", "Vybavení", "Model"]
+
+
 # ---- pomocníci --------------------------------------------------------
 def _docx_se_sablonou(cesta):
     doc = Document()
@@ -152,6 +159,32 @@ def test_odt_rozsekany_placeholder_s_diakritikou(tmp_path):
     odt_engine.fill(str(sablona), {"Značka_telefonu": "Samsung"}, str(vystup))
     xml = _text_odt(str(vystup))
     assert "Samsung" in xml and "{{" not in xml
+
+
+def test_odt_nfd_scan_a_fill(tmp_path):
+    import unicodedata
+    content = unicodedata.normalize("NFD",
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0"'
+        ' xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" office:version="1.2">'
+        "<office:body><office:text>"
+        "<text:p>Značka: {{Značka_telefonu}}</text:p>"
+        "<text:p>Vybavení: {{Vybavení}}</text:p>"
+        "</office:text></office:body></office:document-content>"
+    )
+    sablona = tmp_path / "s.odt"
+    with zipfile.ZipFile(sablona, "w", zipfile.ZIP_DEFLATED) as z:
+        z.writestr("mimetype", "application/vnd.oasis.opendocument.text", zipfile.ZIP_STORED)
+        z.writestr("content.xml", content.encode("utf-8"))
+
+    # klíče se najdou i z rozloženého (NFD) dokumentu, vrácené jsou v NFC
+    assert odt_engine.scan(str(sablona)) == ["Značka_telefonu", "Vybavení"]
+
+    vystup = tmp_path / "out.odt"
+    odt_engine.fill(str(sablona), {"Značka_telefonu": "Samsung", "Vybavení": "Nabíječka"},
+                    str(vystup))
+    xml = _text_odt(str(vystup))
+    assert "Samsung" in xml and "Nabíječka" in xml and "{{" not in xml
 
 
 # ---- automatické číslo -----------------------------------------------

@@ -11,7 +11,7 @@ from docx import Document
 from docx.oxml.ns import qn
 from docx.text.paragraph import Paragraph
 
-from .placeholder import PLACEHOLDER_RE, najdi_klice
+from .placeholder import PLACEHOLDER_RE, najdi_klice, normalizuj
 
 
 def scan(cesta: str) -> list[str]:
@@ -59,6 +59,11 @@ def _vypln_odstavec(odstavec: Paragraph, hodnoty: dict[str, str]) -> None:
     runy = odstavec.runs
     if not runy:
         return
+    # NFD → NFC po jednotlivých runech (diakritika v klíčích), indexy zůstanou sedět
+    for r in runy:
+        nfc = normalizuj(r.text)
+        if nfc != r.text:
+            r.text = nfc
     cely = "".join(r.text for r in runy)
     if "{{" not in cely:
         return

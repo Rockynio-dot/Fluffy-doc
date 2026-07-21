@@ -15,7 +15,7 @@ import re
 import zipfile
 from xml.sax.saxutils import escape
 
-from .placeholder import PLACEHOLDER_RE, najdi_klice
+from .placeholder import PLACEHOLDER_RE, najdi_klice, normalizuj
 
 _CASTI = ("content.xml", "styles.xml")
 
@@ -46,6 +46,7 @@ def fill(cesta_sablony: str, hodnoty: dict[str, str], cesta_vystupu: str) -> str
     for cast in _CASTI:
         if cast in polozky:
             xml = polozky[cast].decode("utf-8")
+            xml = normalizuj(xml)          # NFD → NFC, ať klíče s diakritikou sedí
             xml = _slouc_rozdelene(xml)
             polozky[cast] = _nahrad(xml, hodnoty).encode("utf-8")
 
