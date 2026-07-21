@@ -17,6 +17,7 @@ import json
 import os
 import re
 import shutil
+import sys
 import unicodedata
 from datetime import datetime
 
@@ -26,11 +27,32 @@ META_SOUBOR = "sablona.json"
 
 
 def vychozi_datovy_adresar() -> str:
-    """Výchozí umístění dat (vedle balíčku, ať to funguje i po zabalení)."""
+    """Výchozí umístění dat.
+
+    Priorita:
+    1. proměnná prostředí ``FLUFFY_DOC_DATA`` (má přednost vždy),
+    2. u nainstalované aplikace (.exe / Flatpak / frozen) uživatelský datový
+       adresář (Windows ``%APPDATA%``, Linux ``$XDG_DATA_HOME``, …),
+    3. při běhu ze zdrojáků složka ``data`` vedle projektu (pohodlné pro vývoj).
+    """
+    import sys
+
     base = os.environ.get("FLUFFY_DOC_DATA")
     if base:
         return base
+
+    nainstalovano = getattr(sys, "frozen", False) or bool(os.environ.get("FLATPAK_ID"))
+    if nainstalovano:
+        return os.path.join(_uzivatelsky_datovy_adresar(), "FluffyDoc")
     return os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data")
+
+
+def _uzivatelsky_datovy_adresar() -> str:
+    if sys.platform.startswith("win"):
+        return os.environ.get("APPDATA") or os.path.expanduser("~")
+    if sys.platform == "darwin":
+        return os.path.expanduser("~/Library/Application Support")
+    return os.environ.get("XDG_DATA_HOME") or os.path.expanduser("~/.local/share")
 
 
 class Storage:

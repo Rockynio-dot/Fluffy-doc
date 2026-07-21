@@ -9,6 +9,12 @@ dist/
 venv/
 env/
 
+# Balíčkování
+*.flatpak
+.flatpak-builder/
+flatpak-build/
+*.manifest
+
 # Testovací a dočasné soubory
 .pytest_cache/
 *.tmp

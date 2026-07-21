@@ -116,6 +116,53 @@ data/
 
 Snadno se to zálohuje i sdílí přes síťový disk.
 
+## Balíčkování a instalace
+
+Hotové balíčky vznikají v GitHub Actions a přikládají se k **Releases**.
+Nové vydání se spustí štítkem (tagem):
+
+```bash
+git tag v0.1.0
+git push origin v0.1.0   # spustí build .exe i Flatpaku a vytvoří Release
+```
+
+### Windows (.exe)
+- **Uživatel:** stáhni `FluffyDoc.exe` z Releases a spusť (jeden soubor, bez
+  instalace). Data se ukládají do `%APPDATA%\FluffyDoc`.
+- **Lokální build:**
+  ```bash
+  pip install -r requirements.txt pyinstaller
+  python assets/vytvor_ikony.py          # vygeneruje ikony
+  pyinstaller FluffyDoc.spec --noconfirm
+  # výstup: dist/FluffyDoc.exe
+  ```
+
+### Linux (Flatpak)
+- **Uživatel:**
+  ```bash
+  flatpak install --user FluffyDoc.flatpak
+  flatpak run cz.prosecurity.FluffyDoc
+  ```
+- **Lokální build:**
+  ```bash
+  flatpak install flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+  flatpak-builder --user --install --force-clean build-dir \
+      packaging/flatpak/cz.prosecurity.FluffyDoc.yaml
+  ```
+  Data se ukládají do `~/.var/app/cz.prosecurity.FluffyDoc/`.
+
+  > Závislosti (PySide6, python-docx) se instalují přes pip, proto build
+  > potřebuje síť. Pro interní/CI použití je to v pořádku; pro Flathub by bylo
+  > nutné dodat wheels jako offline zdroje.
+
+### Umístění dat
+| Prostředí | Složka s daty |
+|-----------|---------------|
+| Vývoj (ze zdrojáků) | `data/` v projektu |
+| Windows `.exe` | `%APPDATA%\FluffyDoc` |
+| Flatpak | `~/.var/app/cz.prosecurity.FluffyDoc/…` |
+| Kdekoli | přepíše proměnná `FLUFFY_DOC_DATA` |
+
 ## Struktura projektu
 
 ```
@@ -124,6 +171,13 @@ protokoly/
   core/       # skenování a vyplňování .docx (docx_engine) a .odt (odt_engine)
   ui/         # Qt GUI: hlavní okno, editor šablon, vyplňovací formulář
   app.py      # vstupní bod
+run.py        # spouštěč pro PyInstaller
+FluffyDoc.spec # PyInstaller (onefile .exe)
+assets/       # ikony (SVG/PNG/ICO) + generátor ikon
+packaging/
+  linux/      # .desktop a AppStream metainfo
+  flatpak/    # Flatpak manifest
+.github/workflows/  # CI (testy) + build .exe a Flatpaku
 examples/     # generátor ukázkových šablon
 tests/        # testy jádra (pytest)
 ```

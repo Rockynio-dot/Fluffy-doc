@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2472d1"/>
+      <stop offset="1" stop-color="#12539f"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="240" height="240" rx="48" fill="url(#bg)"/>
+  <!-- dokument -->
+  <path d="M80 52 h64 l32 32 v120 a8 8 0 0 1 -8 8 H80 a8 8 0 0 1 -8 -8 V60 a8 8 0 0 1 8 -8 z"
+        fill="#ffffff"/>
+  <path d="M144 52 l32 32 h-32 z" fill="#cfe0f5"/>
+  <!-- řádky (pole) -->
+  <rect x="92" y="104" width="72" height="10" rx="5" fill="#c7d4e6"/>
+  <rect x="92" y="128" width="72" height="10" rx="5" fill="#c7d4e6"/>
+  <rect x="92" y="152" width="44" height="10" rx="5" fill="#c7d4e6"/>
+  <!-- zlaté zaškrtnutí -->
+  <circle cx="168" cy="176" r="34" fill="#f5b800"/>
+  <path d="M152 176 l11 12 l22 -25" fill="none" stroke="#12539f" stroke-width="9"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

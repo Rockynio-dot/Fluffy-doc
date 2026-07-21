@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>cz.prosecurity.FluffyDoc</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+
+  <name>Fluffy-Doc</name>
+  <summary>Generátor předávacích protokolů z šablon</summary>
+  <summary xml:lang="en">Handover protocol generator from templates</summary>
+
+  <description>
+    <p>
+      Fluffy-Doc tvoří předávací protokoly (PC/NTB, telefony, SIM karty…)
+      z šablon ve formátu .docx a .odt. V šabloně stačí označit místa
+      zástupnými poli ve tvaru {{klic}}, v aplikaci je pak vyplníš do
+      formuláře a vznikne hotový dokument.
+    </p>
+    <p xml:lang="en">
+      Fluffy-Doc creates handover protocols from .docx and .odt templates
+      using {{placeholder}} fields filled in via a form.
+    </p>
+    <p>Funkce:</p>
+    <ul>
+      <li>Šablony .docx i .odt (OpenDocument)</li>
+      <li>Automatické načtení polí z dokumentu (i s diakritikou)</li>
+      <li>Typy polí: text, datum, číslo, výběr, ano/ne, automatické číslo</li>
+      <li>Automatické číslování protokolů (čítač i vzor per šablona)</li>
+    </ul>
+  </description>
+
+  <launchable type="desktop-id">cz.prosecurity.FluffyDoc.desktop</launchable>
+
+  <categories>
+    <category>Office</category>
+  </categories>
+
+  <content_rating type="oars-1.1"/>
+
+  <developer id="cz.prosecurity">
+    <name>ProSecurity Technology s.r.o.</name>
+  </developer>
+
+  <releases>
+    <release version="0.1.0" date="2026-07-21">
+      <description>
+        <p>První vydání: šablony .docx/.odt, formulářové vyplňování,
+        automatické číslování protokolů.</p>
+      </description>
+    </release>
+  </releases>
+</component>

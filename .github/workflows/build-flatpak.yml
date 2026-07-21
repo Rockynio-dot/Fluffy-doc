@@ -1,0 +1,30 @@
+name: Build Flatpak
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+jobs:
+  flatpak:
+    runs-on: ubuntu-latest
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:freedesktop-23.08
+      options: --privileged
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Flatpak bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: FluffyDoc.flatpak
+          manifest-path: packaging/flatpak/cz.prosecurity.FluffyDoc.yaml
+          cache-key: flatpak-builder-${{ github.sha }}
+          # PySide6/python-docx se instalují přes pip → build potřebuje síť
+          build-bundle: true
+
+      - name: Release (jen u tagu)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: FluffyDoc.flatpak

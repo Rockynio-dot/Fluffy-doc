@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Fluffy-Doc
+GenericName=Generátor předávacích protokolů
+GenericName[en]=Handover protocol generator
+Comment=Tvorba předávacích protokolů z šablon (.docx / .odt)
+Comment[en]=Create handover protocols from templates (.docx / .odt)
+Exec=fluffy-doc
+Icon=cz.prosecurity.FluffyDoc
+Categories=Office;
+Keywords=protokol;šablona;docx;odt;předání;
+Terminal=false
+StartupNotify=true

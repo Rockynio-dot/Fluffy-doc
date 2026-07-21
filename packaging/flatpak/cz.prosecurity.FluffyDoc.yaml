@@ -1,0 +1,48 @@
+# Flatpak manifest pro Fluffy-Doc.
+#
+# Sestavení lokálně:
+#   flatpak install flathub org.freedesktop.Platform//23.08 org.freedesktop.Sdk//23.08
+#   flatpak-builder --user --install --force-clean build-dir \
+#       packaging/flatpak/cz.prosecurity.FluffyDoc.yaml
+#   flatpak run cz.prosecurity.FluffyDoc
+#
+# Poznámka: závislosti (PySide6, python-docx) se instalují přes pip, proto
+# build potřebuje síť (build-args: --share=network). To je v pořádku pro
+# interní/CI build; pro Flathub by bylo nutné wheels dodat jako offline zdroje.
+app-id: cz.prosecurity.FluffyDoc
+runtime: org.freedesktop.Platform
+runtime-version: '23.08'
+sdk: org.freedesktop.Sdk
+command: fluffy-doc
+
+finish-args:
+  - --share=ipc
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --device=dri
+  # otevírání šablon a ukládání vygenerovaných protokolů kamkoli v domově
+  - --filesystem=home
+  - --talk-name=org.freedesktop.portal.Desktop
+
+modules:
+  - name: fluffy-doc
+    buildsystem: simple
+    build-options:
+      build-args:
+        - --share=network
+    build-commands:
+      - pip3 install --prefix=/app --no-warn-script-location
+        PySide6-Essentials python-docx .
+      - install -Dm644 packaging/linux/cz.prosecurity.FluffyDoc.desktop
+        /app/share/applications/cz.prosecurity.FluffyDoc.desktop
+      - install -Dm644 packaging/linux/cz.prosecurity.FluffyDoc.metainfo.xml
+        /app/share/metainfo/cz.prosecurity.FluffyDoc.metainfo.xml
+      - install -Dm644 assets/icon.svg
+        /app/share/icons/hicolor/scalable/apps/cz.prosecurity.FluffyDoc.svg
+      - install -Dm644 assets/icon-256.png
+        /app/share/icons/hicolor/256x256/apps/cz.prosecurity.FluffyDoc.png
+      - install -Dm644 assets/icon-128.png
+        /app/share/icons/hicolor/128x128/apps/cz.prosecurity.FluffyDoc.png
+    sources:
+      - type: dir
+        path: ../..
