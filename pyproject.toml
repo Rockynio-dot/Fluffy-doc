@@ -1,0 +1,25 @@
+[project]
+name = "fluffy-doc"
+version = "0.1.0"
+description = "Generátor předávacích protokolů (.docx / .odt) ze šablon se zástupnými poli"
+requires-python = ">=3.10"
+dependencies = [
+    "python-docx>=1.1",
+    "PySide6-Essentials>=6.6",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+fluffy-doc = "protokoly.app:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["protokoly*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

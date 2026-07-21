@@ -1,0 +1,99 @@
+{
+  "nazev": "Předávací protokol – SIM karta",
+  "popis": "Předání služební SIM karty.",
+  "dokument": "dokument.docx",
+  "pole": [
+    {
+      "klic": "cislo_protokolu",
+      "popisek": "Číslo protokolu",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "datum_predani",
+      "popisek": "Datum předání",
+      "typ": "date",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "predavajici",
+      "popisek": "Předávající",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "prebirajici",
+      "popisek": "Přebírající",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "stredisko",
+      "popisek": "Středisko / oddělení",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "operator",
+      "popisek": "Operátor",
+      "typ": "choice",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": [
+        "T-Mobile",
+        "O2",
+        "Vodafone"
+      ]
+    },
+    {
+      "klic": "telefonni_cislo",
+      "popisek": "Telefonní číslo",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "iccid",
+      "popisek": "ICCID (číslo SIM)",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "puk",
+      "popisek": "PUK",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "tarif",
+      "popisek": "Tarif",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "poznamka",
+      "popisek": "Poznámka",
+      "typ": "multiline",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "nazev": "Předávací protokol – Mobilní telefon",
+  "popis": "Předání služebního mobilního telefonu.",
+  "dokument": "dokument.docx",
+  "pole": [
+    {
+      "klic": "cislo_protokolu",
+      "popisek": "Číslo protokolu",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "datum_predani",
+      "popisek": "Datum předání",
+      "typ": "date",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "predavajici",
+      "popisek": "Předávající",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "prebirajici",
+      "popisek": "Přebírající",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "stredisko",
+      "popisek": "Středisko / oddělení",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "vyrobce",
+      "popisek": "Výrobce",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "model",
+      "popisek": "Model",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "imei",
+      "popisek": "IMEI",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "seriove_cislo",
+      "popisek": "Sériové číslo",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "barva",
+      "popisek": "Barva",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "prislusenstvi",
+      "popisek": "Příslušenství",
+      "typ": "multiline",
+      "povinne": false,
+      "vychozi": "Nabíječka, kabel USB-C",
+      "moznosti": []
+    },
+    {
+      "klic": "poznamka",
+      "popisek": "Poznámka",
+      "typ": "multiline",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    }
+  ]
+}

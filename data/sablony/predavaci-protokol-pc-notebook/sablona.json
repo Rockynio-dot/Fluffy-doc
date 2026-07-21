@@ -1,0 +1,122 @@
+{
+  "nazev": "Předávací protokol – PC / Notebook",
+  "popis": "Předání počítače nebo notebooku zaměstnanci.",
+  "dokument": "dokument.odt",
+  "pole": [
+    {
+      "klic": "cislo_protokolu",
+      "popisek": "Číslo protokolu",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "datum_predani",
+      "popisek": "Datum předání",
+      "typ": "date",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "predavajici",
+      "popisek": "Předávající",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "prebirajici",
+      "popisek": "Přebírající",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "stredisko",
+      "popisek": "Středisko / oddělení",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "typ_zarizeni",
+      "popisek": "Typ zařízení",
+      "typ": "choice",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": [
+        "PC",
+        "Notebook"
+      ]
+    },
+    {
+      "klic": "vyrobce",
+      "popisek": "Výrobce",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "model",
+      "popisek": "Model",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "seriove_cislo",
+      "popisek": "Sériové číslo (S/N)",
+      "typ": "text",
+      "povinne": true,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "inventarni_cislo",
+      "popisek": "Inventární číslo",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "mac_adresa",
+      "popisek": "MAC adresa",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "operacni_system",
+      "popisek": "Operační systém",
+      "typ": "text",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    },
+    {
+      "klic": "prislusenstvi",
+      "popisek": "Příslušenství",
+      "typ": "multiline",
+      "povinne": false,
+      "vychozi": "Napájecí adaptér, brašna",
+      "moznosti": []
+    },
+    {
+      "klic": "poznamka",
+      "popisek": "Poznámka",
+      "typ": "multiline",
+      "povinne": false,
+      "vychozi": "",
+      "moznosti": []
+    }
+  ]
+}

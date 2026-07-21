@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Testovací a dočasné soubory
+.pytest_cache/
+*.tmp
+
+# Vygenerované protokoly (výstup aplikace)
+data/vystup/*
+!data/vystup/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
