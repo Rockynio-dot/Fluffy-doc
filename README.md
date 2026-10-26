@@ -56,6 +56,22 @@ python -m protokoly
 
 Po instalaci přes `pip install .` je k dispozici i příkaz `fluffy-doc`.
 
+### Ikona v nabídce aplikací (Linux, běh ze zdrojáků)
+
+Aby appka byla v GNOME/KDE mezi „Aplikacemi" (klikneš a spustíš bez terminálu):
+
+```bash
+./nainstaluj-ikonu.sh
+```
+
+Skript vytvoří položku `Fluffy-Doc` v `~/.local/share/applications` a nainstaluje
+ikonu. Spouští se přes `.venv` (pokud existuje). Odinstalace:
+
+```bash
+rm ~/.local/share/applications/cz.prosecurity.FluffyDoc.desktop
+rm ~/.local/share/icons/hicolor/*/apps/cz.prosecurity.FluffyDoc.*
+```
+
 ## Práce se šablonami
 
 ### Vytvoření šablony
